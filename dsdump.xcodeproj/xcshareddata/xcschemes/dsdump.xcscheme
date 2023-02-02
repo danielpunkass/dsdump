@@ -74,7 +74,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/lolgrep/Desktop/ddi/usr/bin/axauditd -oa arm64 -f XADDisplayManager -v"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "${BUILD_DIR}/Debug/dsdump -F 0x1"
