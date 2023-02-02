@@ -52,76 +52,6 @@
 **********************************************************************/
 
 
-/**********************************************************************
-* compress_layout
-* Allocates and returns a compressed string matching the given layout bitmap.
-**********************************************************************/
-static unsigned char *
-compress_layout(const uint8_t *bits, size_t bitmap_bits, bool weak)
-{
-    bool all_set = YES;
-    bool none_set = YES;
-    unsigned char *result;
-
-    // overallocate a lot; reallocate at correct size later
-    unsigned char * const layout = (unsigned char *)
-        calloc(bitmap_bits + 1, 1);
-    unsigned char *l = layout;
-
-    size_t i = 0;
-    while (i < bitmap_bits) {
-        size_t skip = 0;
-        size_t scan = 0;
-
-        // Count one range each of skip and scan.
-        while (i < bitmap_bits) {
-            uint8_t bit = (uint8_t)((bits[i/8] >> (i % 8)) & 1);
-            if (bit) break;
-            i++;
-            skip++;
-        }
-        while (i < bitmap_bits) {
-            uint8_t bit = (uint8_t)((bits[i/8] >> (i % 8)) & 1);
-            if (!bit) break;
-            i++;
-            scan++;
-            none_set = NO;
-        }
-
-        // Record skip and scan
-        if (skip) all_set = NO;
-        if (scan) none_set = NO;
-        while (skip > 0xf) {
-            *l++ = 0xf0;
-            skip -= 0xf;
-        }
-        if (skip || scan) {
-            *l = (uint8_t)(skip << 4);    // NOT incremented - merges with scan
-            while (scan > 0xf) {
-                *l++ |= 0x0f;  // May merge with short skip; must calloc
-                scan -= 0xf;
-            }
-            *l++ |= scan;      // NOT checked for zero - always increments
-                               // May merge with short skip; must calloc
-        }
-    }
-    
-    // insert terminating byte
-    *l++ = '\0';
-    
-    // return result
-    if (none_set  &&  weak) {
-        result = NULL;  // NULL weak layout means none-weak
-    } else if (all_set  &&  !weak) {
-        result = NULL;  // NULL ivar layout means all-scanned
-    } else {
-        result = (unsigned char *)strdup((char *)layout); 
-    }
-    free(layout);
-    return result;
-}
-
-
 // emacs autoindent hack - it doesn't like the loop in set_bits/clear_bits
 #if 0
 } }
@@ -362,7 +292,6 @@ const char* translate_method_type_to_string(char *typeString) {
     *is_reference = NO;
     
     // get the first character (advancing string)
-    const char *full_type = type;
     char ch = *type++;
     
     // GCC 4 uses for const type*.

@@ -494,7 +494,7 @@
 		A66A9CB322316CF3006602AB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1100;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = Selander;
 				TargetAttributes = {
 					3F50D7802315765B0017A20A = {
